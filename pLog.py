@@ -25,9 +25,6 @@ except:
     a[domain] = {user_id : pas}
     save(a)
 
-
-
-
 while True:
 
     print("""
