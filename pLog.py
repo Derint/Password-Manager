@@ -35,29 +35,40 @@ while True:
 
     choice = input("Choice?? ")
     if choice == '1':
-        print("Select your account")
-        print('\t', ", ".join(list(a.keys())))
+        d = list(a.keys())
+        if len(d) > 1:
+            print("Select your account")
+            print('\t', ", ".join(d))
 
-        acc = input('Domain Name?? ')
+            acc = input('Domain Name?? ')
 
-        if acc in a.keys():
-            temp = list(a[acc].keys())
-            for i in range(len(temp)):
-                print(f"{i+1}. {temp[i]}")
-            
-            try:
-                eAdd = int(input("Select??.. "))
-            except:
-                exit()
+            if acc in a.keys():
+                temp = list(a[acc].keys())
+
+                if len(temp) > 1:
+                    for i in range(len(temp)):
+                        print(f"{i+1}. {temp[i]}")
+                    
+                    try:
+                        eAdd = int(input("Select??.. "))
+                    except:
+                        exit()
+                        
+                    x = temp[eAdd-1]
+                    
+                    if x in temp:
+                        pyperclip.copy(a[acc][x])
+                        print('Your Password has been copied.')
+                else:
+                    pyperclip.copy(list(a[acc].values())[0])
+                    print('Your Password has been copied.')
                 
-            x = temp[eAdd-1]
-            
-            if x in temp:
-                pyperclip.copy(a[acc][x])
-                print('Your Password has been copied.')
+            else:
+                print("No such domain exists !!!")
         else:
-            pass
-        
+            pyperclip.copy(list(list(a.values())[0].values())[0])
+            print('Your Password has been copied.')
+
     elif choice == '2':
         print("Select your account")
         print('\t', ", ".join(list(a.keys())))
