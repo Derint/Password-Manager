@@ -3,3 +3,8 @@
 *.dir
 README.md
 *.ipynb
+/build/
+/dist/
+*.spec
+__pycache__/
+/old/

@@ -1,139 +1,181 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+
 import shelve, pyperclip
 
-shell = shelve.open('words-p')
 
-def save(a):
-    shel = shelve.open('words-p')
-    shel['pass'] = a
+def save(shell,fname):
+    shel = shelve.open(fname)
+    shel['pass'] = shell
     shel.close()
+    
+    newS = shelve.open(fname)
+    return newS['pass']
 
-print("Welcome to Password Manger\n\n".center(100))
+def getKeys(shell):
+    return [i for i in (list(shell.keys()))]
+
+def getInfo():
+    account = input("Enter Acct Name: ")
+    username = input("Enter Uname: ")
+    passwd = input("Enter Passwd: ")
+    
+    return account, username, passwd
+
+def printDetails(shell, prt=False, shownum=False):
+    temp = getKeys(shell)
+    if prt:
+        if shownum: print("\n".join([f'\t{i+1}. {temp[i]}' for i in range(len(temp))]))  
+        else: print('\t' + ", ".join(temp))
+
+
+fileName = 'words-p'
 
 try:
-    a = shell['pass']
+    shell = shelve.open(fileName)['pass']
 except:
-    a = {}
-    print("I guess you are new over here. So lets add a new Domain. ")
+    print("Initial Setup".center(50))
+    d = getInfo()
+    temp = {d[0]: {d[1]:d[2]}}
+    shell = save(temp, fileName)
 
-    domain = input("Enter the Domain Name: ")
-    user_id = input("Enter the Email Address: ")
-    pas = input("Enter the password: ")
 
-    a[domain] = {user_id : pas}
-    save(a)
+if len(shell)==0:
+    print("")
+    d = getInfo()
+    temp = {d[0]: {d[1]:d[2]}}
+    shell = save(temp, fileName)
+
 
 while True:
-
     print("""
-    1. To get password
-    2. To Update Password
-    3. To Insert New Password
-             """)
+    1. Get Passwd
+    2. Update Passwd
+    3. Insert New Acct/Uname
+    4. Delete Acct/Uname
+            """)
 
-    choice = input("Choice?? ")
+    choice = input("Select?? ")
+
     if choice == '1':
-        d = list(a.keys())
-        if len(d) > 1:
-            print("Select your account")
-            print('\t', ", ".join(d))
+        print("Get Password\n".center(40))
+        print("Choose your Account")
+        printDetails(shell, True)
+        accdet = getKeys(shell)
+        account = input("Enter Account Name: ")
 
-            acc = input('Domain Name?? ')
+        if account in accdet:
+            unames = getKeys(shell[account])
 
-            if acc in a.keys():
-                temp = list(a[acc].keys())
+            if len(unames)==1:
+                t = "".join(shell[account].keys())
+                pyperclip.copy(shell[account][unames[0]])
+                print(f"\nPasswd Copied!({t})")
 
-                if len(temp) > 1:
-                    for i in range(len(temp)):
-                        print(f"{i+1}. {temp[i]}")
-                    
-                    try:
-                        eAdd = int(input("Select??.. "))
-                    except:
-                        exit()
-                        
-                    x = temp[eAdd-1]
-                    
-                    if x in temp:
-                        pyperclip.copy(a[acc][x])
-                        print('Your Password has been copied.')
-                else:
-                    pyperclip.copy(list(a[acc].values())[0])
-                    print('Your Password has been copied.')
-                
             else:
-                print("No such domain exists !!!")
-        else:
-            pyperclip.copy(list(list(a.values())[0].values())[0])
-            print('Your Password has been copied.')
+                printDetails(shell[account], True, True)
+                try: 
+                    uchoice = int(input("\t Select: ")) - 1
+                    if -1 < uchoice < len(unames):
+                        pyperclip.copy(shell[account][unames[uchoice]])
+                        print(f"\nPasswd Copied!")
+
+                except: exit()
 
     elif choice == '2':
-        print("Select your account")
-        print('\t', ", ".join(list(a.keys())))
+        print("Updating Password\n".center(30))
+        print("\nChoose your Account")
+        printDetails(shell, True)
+        accdet = getKeys(shell)
+        account = input("Enter Account Name: ")
 
-        acc = input('Domain Name?? ')
-        
-        if acc in a.keys():
-            for i in range(len(list(a[acc].keys()))):
-                print(f"{i+1}. {list(a[acc].keys())[i]}")
-            
-            try:
-                eAdd = int(input("Select??.. "))
-            except:
-                exit()
-                
-            x = list(a[acc].keys())[eAdd-1]
-            
-            if x in a[acc].keys():
-                pas = input("Enter the new password (q/b --> Go Back) : ")
-                if pas in ['q','']:
-                    continue
-                else:
-                    print(a[acc][x])
-                    a[acc][x] = pas
-                    print(a[acc][x])
-                    print('Your Password has been reset.')
-                    save(a)
-        else:
-            pass
-        
+        if account in accdet:
+            unames = getKeys(shell[account])
+            printDetails(shell[account], True, True)
+
+            try: 
+                uchoice = int(input("   Select: ")) - 1
+                if -1 < uchoice < len(unames):
+                    passwd = input("Enter Your New Passwd: ")
+                    shell[account][unames[uchoice]] = passwd
+                    shell = save(shell, fileName)
+
+            except: exit()
+
     elif choice == '3':
-        anoCe = input("Do you want to Add a Domain(ad) or add into existing domain(ed): ")
-        o = ['q','','b']
+        print("Adding New Account/Username\n".center(30))
 
-        if anoCe == 'ad':
-            print("To Go back enter (q/b,uk)")
-            domain = input("Enter the Domain Name: ")
-            user_id = input("Enter the Email Address: ")
-            pas = input("Enter the password: ")
+        uchoice2 = input('Add New Account(na) or New Username(nu): ')
+
+        if uchoice2 == 'na':
+            account = input("Enter Account Name: ")
             
-            if domain in o or user_id in o or pas in o:
-                continue
-
-            a[domain] = {user_id : pas}
-            save(a)
-            
-        elif anoCe == 'ed':
-            print("Select your account")
-            print('\t', ", ".join(list(a.keys())))
-
-            acc = input('Domain Name?? ')
-
-            if acc in a.keys():
-                user_id = input('Enter the User Id: ')
-                pas = input("Enter the password: ")
-
-                if pas in o or user_id in o:
-                    continue
-
-                a[acc][user_id] = pas
-                save(a)
+            if account not in getKeys(shell):
+                username = input("Enter Username: ")
+                passwd = input("Enter Passwd: ")
+                shell[account] = {username:passwd}
+            else:
+                print(f'Account: {account} is already created')
                 
-    elif choice in ['q','e','']:
-        exit()
-        
-    print('\n')
+        elif uchoice2 == 'nu':
+            print("Choose your Account")
+            printDetails(shell, True)
+            accdet = getKeys(shell)
+            account = input("Enter Account Name: ")
 
+            if account in accdet:
+                username = input("Enter Username: ")
+                passwd = input("Enter Passwd: ")
+                shell[account][username] = passwd
+
+        if uchoice2 in ['na', 'nu']: shell = save(shell, fileName)
+
+
+    elif choice == '4':
+        print('Deleting Account/Username\n'.center(30))
+        uchoice3 = input('Delete Account(a) or Username(u): ')
+
+        if uchoice3 == 'a':
+            print("Choose your Account")
+            printDetails(shell, True)
+            accdet = getKeys(shell)
+            account = input("Enter Account Name: ")
+
+            if account in accdet:
+                del shell[account]
+                print(f'Account : {account} was deleted')
+                shell = save(shell, fileName)
+
+        elif uchoice3 == 'u':
+            print("Choose your Account")
+            printDetails(shell, True)
+            accdet = getKeys(shell)
+            account = input("Enter Account Name: ")
+
+            if account in accdet:
+                unames = getKeys(shell[account])
+                printDetails(shell[account], True, True)
+                try: 
+                    uchoice = int(input("\t Select: ")) - 1
+                    if -1 < uchoice < len(unames):
+                        del shell[account][unames[uchoice]]
+                        shell = save(shell, fileName)
+                        print(f'\nUsername {unames[uchoice]} in Account({account}) was Deleted.')
+                        
+                        if len(shell[account]) == 0:
+                            print(f'Account: {account} has no username, so deleting it now.')
+                            del shell[account]
+                            print(f'Account : {account} was deleted')
+                            shell = save(shell, fileName)
+                        
+                except: exit()
+            
+    elif choice in ['q', 'b', '']:
+        print("\n\n\tExiting.........")
+        break
+    
+    if len(shell)==0:break
+        
+    print('----'*10)
 
