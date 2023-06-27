@@ -6,7 +6,6 @@ import pyperclip
 from time import sleep, time
 from os import system, name, get_terminal_size, mkdir, path, remove
 from sql_cmds import *
-len
 
 def clearConsole():
     system( 'cls' if name in ('nt', 'dos') else  'clear')
@@ -21,7 +20,6 @@ def heading_2(text):
 def getKeys(shell):
     return [i for i in (list(shell.keys()))]
    
-
 def printDetails(shell, shownum=False):
     s, t, width, space = 0, 4, w, ' '
     n = len(getKeys(shell))
@@ -38,7 +36,6 @@ def printDetails(shell, shownum=False):
 
 def copy_to_clipboard(text):
     pyperclip.copy(text)
-   
 
 def get_input(text, nl=False, el=False):
     t, t2 = "\n" if nl else "",  "\n" if el else ""
