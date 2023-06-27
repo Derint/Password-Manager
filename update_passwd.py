@@ -36,6 +36,11 @@ def connect(url, n=1):
         try:  
             req = get(url)
             return req
+
+        except KeyboardInterrupt:
+            print("\rKeyboard Interruption. Exiting")
+            exit()
+
         except:
             print(f"\r  !!! Start the server to update passwords {'.'*n}", end='')
             n+=1; sleep(0.4)
@@ -46,13 +51,23 @@ def connect(url, n=1):
                 print("\n  [!]  Connection Time-out, pls check your server/computer Ntw....")
                 exit()
         
-
-url = '' #Server URL for .db file
+ip = input(" > Enter IP Address: ")
+url = f'http://{ip}/qpython%2F.pwd%2Fpwds.db'
 FILENAME = '.pwd/pwds.db'
+
+if not path.isfile(FILENAME):
+    print('File Not found')
+    exit()
+
 savefile(url)
 
 printmsg("Updating Passwords...", "*")
-thisdata, dwndata = timeDB('.pwd/pwds.db'), timeDB('.pwd/tmppwds.db')
+try:
+    thisdata, dwndata = timeDB(FILENAME), timeDB('.pwd/tmppwds.db')
+except Exception as e:
+    backspace()
+    print("\rException Occured: ", e)
+    exit()
 
 thisKey, dwndKey = thisdata.keys(), dwndata.keys()
 uniqKeys = set(thisKey).union(dwndKey)
@@ -90,7 +105,7 @@ if count['update_psk']:
     printmsg(f"Updated {count['update_psk']} Password(s)\n", '+')
 
 if count['account']:
-    printmsg(f"Added {count['account']} Account(s) \n", '+')
+    printmsg(f"Added {count['account']} Account(s)", '+')
 
 if count['usrname']:
     printmsg(f"Added {count['usrname']} username(s) \n", '+')
